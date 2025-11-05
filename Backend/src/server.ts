@@ -34,15 +34,17 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 
-if(process.env.NODE_ENV !=="production"){
-  app.listen(PORT, () => {
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello from the TypeScript backend server!");
+});
+
+app.listen(PORT, () => {
     connectDb();
   console.log(`Server is running on port ${PORT}`);
 });
-  
-}
 
-export default server;
+
+
 
 
 
