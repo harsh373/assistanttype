@@ -10,7 +10,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 function App() {
-  const { userData, setUserData } = useContext<any>(userDataContext)
+  const { userData } = useContext<any>(userDataContext)
 
   return (
     <div>

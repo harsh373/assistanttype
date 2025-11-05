@@ -4,7 +4,7 @@ import  { createContext, useEffect, useState, type ReactNode } from 'react'
 export const userDataContext = createContext<any>(null)
 
 function UserContext({ children }: { children: ReactNode }) {
-  const serverUrl = "http://localhost:5000"
+  const serverUrl = import.meta.env.VITE_BACKEND_URL 
   const [userData, setUserData] = useState<any>(null)
   const [frontendImage, setFrontendImage] = useState<string | null>(null)
   const [backendImage, setBackendImage] = useState<string | null>(null)

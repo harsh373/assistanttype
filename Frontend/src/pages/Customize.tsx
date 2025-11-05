@@ -14,7 +14,7 @@ import { MdKeyboardBackspace } from "react-icons/md";
 import { toast } from 'react-toastify'
 
 function Customize() {
-  const { serverUrl, userData, setUserData, backendImage, setBackendImage, frontendImage, setFrontendImage, selectedImage, setSelectedImage } = useContext<any>(userDataContext)
+  const {  setBackendImage, frontendImage, setFrontendImage, selectedImage, setSelectedImage } = useContext<any>(userDataContext)
   const navigate = useNavigate()
   const inputImage = useRef<HTMLInputElement | null>(null)
 
@@ -27,9 +27,9 @@ function Customize() {
   }
 
   return (
-    <div className='w-full h-[100vh] bg-gradient-to-t from-[black] to-[#f62020] flex justify-center items-center flex-col p-[20px] '>
+    <div className='w-full h-screen bg-linear-to-t from-[black] to-[#f62020] flex justify-center items-center flex-col p-5 '>
       <MdKeyboardBackspace className='absolute top-[30px] left-[30px] text-white cursor-pointer w-[25px] h-[25px]' onClick={() => navigate("/")} />
-      <h1 className='text-white mb-[40px] text-[30px] text-center '>Select your <span className='text-blue-200'>Assistant Image</span></h1>
+      <h1 className='text-white mb-10 text-[30px] text-center '>Select your <span className='text-blue-200'>Assistant Image</span></h1>
       <div className='w-full max-w-[900px] flex justify-center items-center flex-wrap gap-[15px]'>
         <Card image={image1} />
         <Card image={image2} />
