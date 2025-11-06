@@ -1,4 +1,4 @@
-import  { useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { userDataContext } from '../context/UserContext'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
@@ -20,18 +20,34 @@ function Home() {
   const isRecognizingRef = useRef<boolean>(false)
   const synth = window.speechSynthesis
 
+  // ✅ Redirect if no token found (auth guard)
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/signin");
+    }
+  }, [navigate]);
+
+  // ✅ Fixed Logout Function
   const handleLogOut = async () => {
     try {
-      await axios.get(`${serverUrl}/api/auth/logout`, { withCredentials: true })
-      toast.success("Logged Out Successfully")
-      setUserData(null)
-      navigate("/signin")
+      const token = localStorage.getItem("token");
+
+      await axios.get(`${serverUrl}/api/auth/logout`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      });
+
+      localStorage.removeItem("token"); // remove token on logout
+      toast.success("Logged Out Successfully");
+      setUserData(null);
+      navigate("/signin");
     } catch (error: any) {
-      setUserData(null)
-      console.log(error)
-      toast.error("Error logging out" + error.message)
+      setUserData(null);
+      console.error("Logout error:", error);
+      toast.error("Error logging out: " + (error.response?.data?.message || error.message));
     }
-  }
+  };
 
   const startRecognition = () => {
     if (!isSpeakingRef.current && !isRecognizingRef.current) {
