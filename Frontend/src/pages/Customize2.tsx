@@ -18,40 +18,32 @@ function Customize2() {
 const handleUpdateAssistant = async () => {
   setLoading(true);
   try {
-    let result;
-    const hasFile = backendImage instanceof File; // ✅ real file check
-    const hasImageUrl = !!(selectedImage || backendImage);
-    const hasName = assistantName.trim().length > 0;
+    // 🧠 Convert /assets/... into full public URLs (e.g. https://assistant-neon.vercel.app/assets/image2.jpg)
+    const fullUrl =
+      selectedImage?.startsWith("/assets/")
+        ? `${window.location.origin}${selectedImage}`
+        : selectedImage;
 
-    if (!hasName && !hasFile && !hasImageUrl) {
-      toast.error("Please provide at least a name or image");
-      setLoading(false);
-      return;
-    }
+    const formData = new FormData();
+    formData.append("assistantName", assistantName);
 
-    if (hasFile) {
-      // ✅ Case 1: real file
-      const formData = new FormData();
-      formData.append("assistantName", assistantName);
+    // 🧩 If user uploaded a real file, attach it
+    if (backendImage instanceof File) {
       formData.append("assistantImage", backendImage);
-      result = await axios.post(`${serverUrl}/api/user/update`, formData, {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
-      });
     } else {
-      // ✅ Case 2: JSON payload
-      result = await axios.post(
-        `${serverUrl}/api/user/update`,
-        {
-          assistantName,
-          imageUrl: selectedImage || backendImage || "",
-        },
-        { withCredentials: true }
-      );
+      // Otherwise send the resolved image URL (full)
+      formData.append("imageUrl", fullUrl || "");
     }
+
+    const result = await axios.post(`${serverUrl}/api/user/update`, formData, {
+      withCredentials: true,
+      headers: { "Content-Type": "multipart/form-data" },
+    });
 
     setUserData(result.data.user);
     toast.success("Assistant changed successfully");
+
+    // Navigate after slight delay to allow context update
     setTimeout(() => navigate("/"), 300);
   } catch (error) {
     console.error("Update Error:", error);
