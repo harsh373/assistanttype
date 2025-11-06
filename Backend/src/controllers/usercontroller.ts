@@ -25,35 +25,57 @@ export const getCurrentUser = async (req: Request, res: Response) => {
 
 export const updateAssistant = async (req: Request, res: Response) => {
   try {
-    const { assistantName, imageUrl } = req.body as {
-      assistantName?: string;
-      imageUrl?: string;
-    };
-
     const userId = (req as any).userId;
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized: missing userId" });
     }
 
-    if (!assistantName && !imageUrl && !(req as any).file) {
-      return res.status(400).json({ message: "No update data provided" });
+    // Log for debugging — remove later
+    console.log("BODY:", req.body);
+    console.log("FILE:", (req as any).file);
+
+    const { assistantName, imageUrl } = req.body as {
+      assistantName?: string;
+      imageUrl?: string;
+    };
+
+    // ✅ Defensive guard: all three missing
+    const noName = !assistantName || assistantName.trim() === "";
+    const noImage = !imageUrl || imageUrl.trim() === "";
+    const noFile = !(req as any).file;
+
+    if (noName && noImage && noFile) {
+      return res.status(400).json({ message: "No valid update data provided" });
     }
 
-    let assistantImage = imageUrl;
+    let assistantImage = imageUrl; // keep image URL if provided
 
-    // ✅ Cloudinary returns a string already
+    // ✅ If file uploaded, send to Cloudinary
     if ((req as any).file) {
       const uploaded = await uploadOnCloudinary((req as any).file.path);
-      if (uploaded) {
-        assistantImage = uploaded;
-      }
+      if (uploaded) assistantImage = uploaded;
     }
 
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { assistantName, assistantImage },
-      { new: true }
-    ).select("-password");
+    // ✅ Prepare update object safely
+    const updateFields: any = {};
+    if (assistantName && assistantName.trim() !== "") {
+      updateFields.assistantName = assistantName;
+    }
+    if (assistantImage && assistantImage.trim() !== "") {
+      updateFields.assistantImage = assistantImage;
+    }
+
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({ message: "Nothing to update" });
+    }
+
+    const user = await User.findByIdAndUpdate(userId, updateFields, {
+      new: true,
+    }).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     return res.status(200).json({
       message: "Assistant updated successfully",
