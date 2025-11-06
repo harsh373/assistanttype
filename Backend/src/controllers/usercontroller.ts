@@ -24,20 +24,18 @@ export const getCurrentUser = async (req: Request, res: Response) => {
 }
 
 export const updateAssistant = async (req: Request, res: Response) => {
-  console.log("🟢 [updateAssistant] — Handler triggered");
+
 
   try {
     const userId = (req as any).userId;
-    console.log("🔍 userId:", userId);
+  
 
     if (!userId) {
-      console.log("❌ Missing userId — unauthorized request");
+      
       return res.status(401).json({ message: "Unauthorized: missing userId" });
     }
 
-    console.log("📦 Request body:", req.body);
-    console.log("📸 Uploaded file:", (req as any).file);
-
+   
     const { assistantName, imageUrl } = req.body as {
       assistantName?: string;
       imageUrl?: string;
@@ -55,7 +53,7 @@ export const updateAssistant = async (req: Request, res: Response) => {
     if ((req as any).file) {
       console.log("☁️ Uploading new assistant image to Cloudinary...");
       const uploadedUrl = await uploadOnCloudinary((req as any).file.path);
-      console.log("☁️ Cloudinary upload result:", uploadedUrl);
+      
       if (uploadedUrl) assistantImage = uploadedUrl;
     }
 
@@ -64,7 +62,7 @@ export const updateAssistant = async (req: Request, res: Response) => {
     if (assistantName?.trim()) updateFields.assistantName = assistantName.trim();
     if (assistantImage?.trim()) updateFields.assistantImage = assistantImage.trim();
 
-    console.log("🛠️ Prepared updateFields:", updateFields);
+    
 
     if (Object.keys(updateFields).length === 0) {
       console.log("⚠️ Nothing to update, skipping DB update");
@@ -92,7 +90,7 @@ export const updateAssistant = async (req: Request, res: Response) => {
       user,
     });
   } catch (error) {
-    console.error("🔥 Catch block triggered — Update Error:");
+   
     console.error(error);
     return res.status(500).json({ message: "Update assistant Error", error });
   }
