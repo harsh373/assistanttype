@@ -34,12 +34,11 @@ const Signin = () => {
         { withCredentials: true }
       );
 
-      console.log("✅ Signin response:", result.data);
 
       // ✅ Save token (from JSON)
       if (result.data.token) {
         localStorage.setItem("token", result.data.token);
-        console.log("🧩 Token saved in localStorage:", result.data.token);
+       
       } else {
         console.warn("⚠️ No token returned from backend");
       }
