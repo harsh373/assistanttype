@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react'
+import React, { useContext, useRef } from 'react'
 import Card from '../component/Card'
 import image1 from "../assets/image1.jpg"
 import image2 from "../assets/image2.jpg"

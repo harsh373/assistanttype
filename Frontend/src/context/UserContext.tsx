@@ -1,14 +1,13 @@
 import axios from 'axios'
 import  { createContext, useEffect, useState, type ReactNode } from 'react'
+axios.defaults.withCredentials = true;
 
 export const userDataContext = createContext<any>(null)
 
+
 function UserContext({ children }: { children: ReactNode }) {
-<<<<<<< HEAD
+
   const serverUrl = import.meta.env.VITE_BACKEND_URL 
-=======
-  const serverUrl = import.meta.env.VITE_BACKEND_URL 
->>>>>>> 59da3ac8c05f37f3c503f26a81ecce721ee77216
   const [userData, setUserData] = useState<any>(null)
   const [frontendImage, setFrontendImage] = useState<string | null>(null)
   const [backendImage, setBackendImage] = useState<string | null>(null)
@@ -16,7 +15,7 @@ function UserContext({ children }: { children: ReactNode }) {
 
   const handleCurrentUser = async () => {
     try {
-      const result = await axios.get(`${serverUrl}/api/user/current`, { withCredentials: true })
+      const result = await axios.get(`${serverUrl}/api/user/current`)
       setUserData(result.data.user)
       console.log(result.data.user)
     } catch (error) {

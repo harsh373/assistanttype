@@ -13,7 +13,7 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"], // ✅ add both
+    origin: ["http://localhost:5173", "http://localhost:5174","https://assistant-neon.vercel.app"], // ✅ add both
     credentials: true,
   })
 );
@@ -33,9 +33,18 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello from the TypeScript backend server!");
 });
 
+
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello from the TypeScript backend server!");
+});
+
 app.listen(PORT, () => {
     connectDb();
   console.log(`Server is running on port ${PORT}`);
 });
+
+
+
+
 
 
