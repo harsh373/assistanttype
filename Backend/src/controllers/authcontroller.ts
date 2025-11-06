@@ -49,6 +49,7 @@ export const signup = async (req: Request, res: Response) => {
       httpOnly: true,
       secure: true, // Vercel uses HTTPS
       sameSite: "none", // Required for cross-site requests
+      path: "/", // 🩵 critical
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
