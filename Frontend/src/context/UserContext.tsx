@@ -23,14 +23,26 @@ function UserContext({ children }: { children: ReactNode }) {
     }
   }
 
-  const getGeminiResponse = async (command: string) => {
-    try {
-      const result = await axios.post(`${serverUrl}/api/user/asktoassistant`, { command }, { withCredentials: true })
-      return result.data
-    } catch (error) {
-      console.log(error)
-    }
+  // context/UserContext.tsx (inside your provider)
+const getGeminiResponse = async (command: string) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await axios.post(
+      `${serverUrl}/api/user/asktoassistant`,
+      { command },
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Gemini API error:", error.response?.data || error.message);
+    throw error;
   }
+};
 
   useEffect(() => {
     handleCurrentUser()
