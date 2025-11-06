@@ -30,7 +30,7 @@ export const updateAssistant = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Unauthorized: missing userId" });
     }
 
-    // Log for debugging — remove later
+    // 🧠 Debug (optional: remove later)
     console.log("BODY:", req.body);
     console.log("FILE:", (req as any).file);
 
@@ -39,36 +39,40 @@ export const updateAssistant = async (req: Request, res: Response) => {
       imageUrl?: string;
     };
 
-    // ✅ Defensive guard: all three missing
+    // 🧩 Handle local frontend assets (/assets/...)
+    const isFrontendAsset = imageUrl?.startsWith("/assets/");
+
+    // ✅ Defensive guard: ensure at least one valid input
     const noName = !assistantName || assistantName.trim() === "";
     const noImage = !imageUrl || imageUrl.trim() === "";
     const noFile = !(req as any).file;
 
-    if (noName && noImage && noFile) {
+    if (noName && noFile && !isFrontendAsset) {
       return res.status(400).json({ message: "No valid update data provided" });
     }
 
-    let assistantImage = imageUrl; // keep image URL if provided
+    let assistantImage = imageUrl; // keep URL or frontend asset path
 
-    // ✅ If file uploaded, send to Cloudinary
+    // ✅ If a real file is uploaded, push it to Cloudinary
     if ((req as any).file) {
       const uploaded = await uploadOnCloudinary((req as any).file.path);
       if (uploaded) assistantImage = uploaded;
     }
 
-    // ✅ Prepare update object safely
-    const updateFields: any = {};
+    // ✅ Build dynamic update object safely
+    const updateFields: Record<string, any> = {};
     if (assistantName && assistantName.trim() !== "") {
-      updateFields.assistantName = assistantName;
+      updateFields.assistantName = assistantName.trim();
     }
     if (assistantImage && assistantImage.trim() !== "") {
-      updateFields.assistantImage = assistantImage;
+      updateFields.assistantImage = assistantImage.trim();
     }
 
     if (Object.keys(updateFields).length === 0) {
       return res.status(400).json({ message: "Nothing to update" });
     }
 
+    // ✅ Update user record
     const user = await User.findByIdAndUpdate(userId, updateFields, {
       new: true,
     }).select("-password");
@@ -77,6 +81,7 @@ export const updateAssistant = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // ✅ Success
     return res.status(200).json({
       message: "Assistant updated successfully",
       user,
