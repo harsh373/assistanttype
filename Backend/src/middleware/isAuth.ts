@@ -7,6 +7,8 @@ interface AuthenticatedRequest extends Request {
 
 const isAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
+    console.log("🧠 isAuth triggered. Origin:", req.headers.origin);
+    console.log("🧠 Cookies received:", req.cookies);
     const token = req.cookies.token;
     if (!token) {
       return res.status(400).json({ message: "token not found" });
