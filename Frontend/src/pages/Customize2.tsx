@@ -46,10 +46,7 @@ function Customize2() {
         formData.append("imageUrl", fullUrl);
       }
 
-      console.log("🧠 Sending payload to backend:", {
-        assistantName,
-        imageUrl: fullUrl,
-      });
+      
 
       // 🧩 Send request
       const result = await axios.post(
@@ -63,7 +60,7 @@ function Customize2() {
         }
       );
 
-      console.log("✅ Backend response:", result.data);
+
 
       // 🧩 Update global state and show success
       if (result.data.user) {
