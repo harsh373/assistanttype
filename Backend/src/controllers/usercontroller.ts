@@ -24,71 +24,77 @@ export const getCurrentUser = async (req: Request, res: Response) => {
 }
 
 export const updateAssistant = async (req: Request, res: Response) => {
+  console.log("🟢 [updateAssistant] — Handler triggered");
+
   try {
     const userId = (req as any).userId;
+    console.log("🔍 userId:", userId);
+
     if (!userId) {
+      console.log("❌ Missing userId — unauthorized request");
       return res.status(401).json({ message: "Unauthorized: missing userId" });
     }
 
-    // 🧠 Debug (optional: remove later)
-    console.log("BODY:", req.body);
-    console.log("FILE:", (req as any).file);
+    console.log("📦 Request body:", req.body);
+    console.log("📸 Uploaded file:", (req as any).file);
 
     const { assistantName, imageUrl } = req.body as {
       assistantName?: string;
       imageUrl?: string;
     };
 
-    // 🧩 Handle local frontend assets (/assets/...)
-    const isFrontendAsset = imageUrl?.startsWith("/assets/");
-
-    // ✅ Defensive guard: ensure at least one valid input
-    const noName = !assistantName || assistantName.trim() === "";
-    const noImage = !imageUrl || imageUrl.trim() === "";
-    const noFile = !(req as any).file;
-
-    if (noName && noFile && !isFrontendAsset) {
+    // Defensive guard
+    if (!assistantName && !imageUrl && !(req as any).file) {
+      console.log("⚠️ No valid update data provided");
       return res.status(400).json({ message: "No valid update data provided" });
     }
 
-    let assistantImage = imageUrl; // keep URL or frontend asset path
+    let assistantImage = imageUrl;
 
-    // ✅ If a real file is uploaded, push it to Cloudinary
+    // ✅ Upload new image to Cloudinary (if exists)
     if ((req as any).file) {
-      const uploaded = await uploadOnCloudinary((req as any).file.path);
-      if (uploaded) assistantImage = uploaded;
+      console.log("☁️ Uploading new assistant image to Cloudinary...");
+      const uploadedUrl = await uploadOnCloudinary((req as any).file.path);
+      console.log("☁️ Cloudinary upload result:", uploadedUrl);
+      if (uploadedUrl) assistantImage = uploadedUrl;
     }
 
-    // ✅ Build dynamic update object safely
+    // ✅ Build update object
     const updateFields: Record<string, any> = {};
-    if (assistantName && assistantName.trim() !== "") {
-      updateFields.assistantName = assistantName.trim();
-    }
-    if (assistantImage && assistantImage.trim() !== "") {
-      updateFields.assistantImage = assistantImage.trim();
-    }
+    if (assistantName?.trim()) updateFields.assistantName = assistantName.trim();
+    if (assistantImage?.trim()) updateFields.assistantImage = assistantImage.trim();
+
+    console.log("🛠️ Prepared updateFields:", updateFields);
 
     if (Object.keys(updateFields).length === 0) {
+      console.log("⚠️ Nothing to update, skipping DB update");
       return res.status(400).json({ message: "Nothing to update" });
     }
 
-    // ✅ Update user record
+    console.log("🧩 Updating user in database...");
     const user = await User.findByIdAndUpdate(userId, updateFields, {
       new: true,
     }).select("-password");
 
     if (!user) {
+      console.log("❌ User not found in database");
       return res.status(404).json({ message: "User not found" });
     }
 
-    // ✅ Success
+    console.log("✅ Assistant updated successfully:", {
+      id: user._id,
+      name: user.assistantName,
+      image: user.assistantImage,
+    });
+
     return res.status(200).json({
       message: "Assistant updated successfully",
       user,
     });
   } catch (error) {
-    console.error("Update Error:", error);
-    return res.status(500).json({ message: "Update assistant Error" });
+    console.error("🔥 Catch block triggered — Update Error:");
+    console.error(error);
+    return res.status(500).json({ message: "Update assistant Error", error });
   }
 };
 
