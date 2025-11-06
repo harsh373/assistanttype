@@ -30,6 +30,7 @@ const Signin = () => {
 
       // ✅ Store only the user object
       setUserData(result.data.user);
+       localStorage.setItem("token", result.data.token);
 
       console.log('Signin successful:', result.data.user);
 
