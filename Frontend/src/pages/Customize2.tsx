@@ -35,11 +35,12 @@ const handleUpdateAssistant = async () => {
       formData.append("imageUrl", fullUrl || "");
     }
 
-    const result = await axios.post(`${serverUrl}/api/user/update`, formData, {
-      withCredentials: true,
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const token = localStorage.getItem("token");
 
+await axios.post(`${serverUrl}/api/user/update`, formData, {
+  withCredentials: true,
+  headers: { Authorization: `Bearer ${token}` },
+});
     setUserData(result.data.user);
     toast.success("Assistant changed successfully");
 
