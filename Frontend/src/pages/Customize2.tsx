@@ -16,31 +16,42 @@ function Customize2() {
   const navigate = useNavigate()
 
   const handleUpdateAssistant = async () => {
-    setLoading(true)
-    try {
-      const formData = new FormData()
-      formData.append("assistantName", assistantName)
-      if (backendImage) {
-        formData.append("assistantImage", backendImage)
-      } else {
-        formData.append("imageUrl", selectedImage)
-      }
-      const result = await axios.post(`${serverUrl}/api/user/update`, formData, { withCredentials: true })
-      setLoading(false)
-      console.log(result.data.user)
-      setUserData(result.data.user)
-      toast.success("Assistant changed Successfully")
-      // Navigate after a short delay to allow context to update
-      setTimeout(() => {
-      navigate("/")
-     }, 300)
+  setLoading(true);
+  try {
+    let result;
 
-    } catch (error) {
-      setLoading(false)
-      toast.error("Error updating assistant. Please try again.")
-      console.log(error)
+    if (backendImage && typeof backendImage !== "string") {
+      // ✅ Case 1: backendImage is a real File (user uploaded a new one)
+      const formData = new FormData();
+      formData.append("assistantName", assistantName);
+      formData.append("assistantImage", backendImage); // must be a File object
+
+      result = await axios.post(`${serverUrl}/api/user/update`, formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    } else {
+      // ✅ Case 2: only assistant name or pre-existing image URL
+      result = await axios.post(
+        `${serverUrl}/api/user/update`,
+        {
+          assistantName,
+          imageUrl: selectedImage || backendImage || "", // send image URL as JSON
+        },
+        { withCredentials: true }
+      );
     }
+
+    setUserData(result.data.user);
+    toast.success("Assistant changed successfully");
+    setTimeout(() => navigate("/"), 300);
+  } catch (error) {
+    console.error(error);
+    toast.error("Error updating assistant. Please try again.");
+  } finally {
+    setLoading(false);
   }
+};
 
   return (
     <div className='w-full h-screen bg-cover   flex justify-center items-center flex-col p-5 relative  ' style={{ backgroundImage: `url(${bg})` }}>
