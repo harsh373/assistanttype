@@ -23,38 +23,49 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     
 }
 
-
 export const updateAssistant = async (req: Request, res: Response) => {
-    try {
-        const { assistantName, imageUrl } = req.body as {
-            assistantName: string,
-            imageUrl: string
-        }
-        let assistantImage
+  try {
+    const { assistantName, imageUrl } = req.body as {
+      assistantName?: string;
+      imageUrl?: string;
+    };
 
-        if ((req as any).file) {
-            assistantImage = await uploadOnCloudinary((req as any).file.path);
-        } else {
-            assistantImage = imageUrl; // retain existing image URL if no new file is uploaded
-        }
-
-
-        const user = await User.findByIdAndUpdate(
-            (req as any).userId,
-            {
-                assistantName,
-                assistantImage
-            },
-            { new: true }
-        ).select("-password");  
-        return res.status(200).json({ message: "Assistant updated successfully", user });
-
+    const userId = (req as any).userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: missing userId" });
     }
-    catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: " update assistant Error" });  
+
+    if (!assistantName && !imageUrl && !(req as any).file) {
+      return res.status(400).json({ message: "No update data provided" });
     }
-}
+
+    let assistantImage = imageUrl;
+
+    // ✅ Cloudinary returns a string already
+    if ((req as any).file) {
+      const uploaded = await uploadOnCloudinary((req as any).file.path);
+      if (uploaded) {
+        assistantImage = uploaded;
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { assistantName, assistantImage },
+      { new: true }
+    ).select("-password");
+
+    return res.status(200).json({
+      message: "Assistant updated successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Update Error:", error);
+    return res.status(500).json({ message: "Update assistant Error" });
+  }
+};
+
+
 
 export const askToAssistant = async (req: Request, res: Response) => {
     try {
@@ -135,5 +146,7 @@ export const askToAssistant = async (req: Request, res: Response) => {
         return res.status(500).json({ response: "ask assistant error" });
     }
 };
+
+
 
 
