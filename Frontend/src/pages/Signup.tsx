@@ -24,6 +24,7 @@ const Signup = () => {
         { name, email, password },
         { withCredentials: true }
       );
+       localStorage.setItem("token", result.data.token);
 
       // ✅ Store only the user data
       setUserData(result.data.user);
