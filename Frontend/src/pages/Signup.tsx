@@ -37,7 +37,7 @@ const Signup = () => {
       // ✅ Check if token exists (backend returns it now)
       if (result.data.token) {
         localStorage.setItem("token", result.data.token);
-        console.log("🧩 Token stored in localStorage:", result.data.token);
+       
       } else {
         console.warn("⚠️ No token returned in signup response");
       }
@@ -47,7 +47,7 @@ const Signup = () => {
         setUserData(result.data.user);
       }
 
-      console.log("✅ Signup success:", result.data.user);
+    
       toast.success("Signup successful!");
 
       // ✅ Redirect to customize page
