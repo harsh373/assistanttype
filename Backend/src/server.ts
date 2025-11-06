@@ -32,11 +32,10 @@ app.use("/api/user", userRouter);
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello from the TypeScript backend server!");
 });
-
-
+connectDb();
 
 app.listen(PORT, () => {
-    connectDb();
+ 
   console.log(`Server is running on port ${PORT}`);
 });
 
