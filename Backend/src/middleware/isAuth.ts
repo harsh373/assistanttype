@@ -7,8 +7,7 @@ interface AuthenticatedRequest extends Request {
 
 const isAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    console.log("🧠 isAuth triggered. Origin:", req.headers.origin);
-    console.log("🧠 Cookies received:", req.cookies);
+   
 
     let token: string | undefined;
 
@@ -33,7 +32,7 @@ const isAuth = async (req: AuthenticatedRequest, res: Response, next: NextFuncti
     // 4️⃣ Verify and attach userId
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: string };
     req.userId = decoded.userId;
-    console.log("✅ Token verified successfully for user:", decoded.userId);
+    console.log("✅ Token verified successfully for user:");
 
     next();
   } catch (error) {
