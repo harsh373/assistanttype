@@ -15,28 +15,36 @@ function Customize2() {
   const [loading, setLoading] = useState<boolean>(false)
   const navigate = useNavigate()
 
-  const handleUpdateAssistant = async () => {
+const handleUpdateAssistant = async () => {
   setLoading(true);
   try {
     let result;
+    const hasFile = backendImage instanceof File; // ✅ real file check
+    const hasImageUrl = !!(selectedImage || backendImage);
+    const hasName = assistantName.trim().length > 0;
 
-    if (backendImage && typeof backendImage !== "string") {
-      // ✅ Case 1: backendImage is a real File (user uploaded a new one)
+    if (!hasName && !hasFile && !hasImageUrl) {
+      toast.error("Please provide at least a name or image");
+      setLoading(false);
+      return;
+    }
+
+    if (hasFile) {
+      // ✅ Case 1: real file
       const formData = new FormData();
       formData.append("assistantName", assistantName);
-      formData.append("assistantImage", backendImage); // must be a File object
-
+      formData.append("assistantImage", backendImage);
       result = await axios.post(`${serverUrl}/api/user/update`, formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       });
     } else {
-      // ✅ Case 2: only assistant name or pre-existing image URL
+      // ✅ Case 2: JSON payload
       result = await axios.post(
         `${serverUrl}/api/user/update`,
         {
           assistantName,
-          imageUrl: selectedImage || backendImage || "", // send image URL as JSON
+          imageUrl: selectedImage || backendImage || "",
         },
         { withCredentials: true }
       );
@@ -46,12 +54,13 @@ function Customize2() {
     toast.success("Assistant changed successfully");
     setTimeout(() => navigate("/"), 300);
   } catch (error) {
-    console.error(error);
+    console.error("Update Error:", error);
     toast.error("Error updating assistant. Please try again.");
   } finally {
     setLoading(false);
   }
 };
+
 
   return (
     <div className='w-full h-screen bg-cover   flex justify-center items-center flex-col p-5 relative  ' style={{ backgroundImage: `url(${bg})` }}>
