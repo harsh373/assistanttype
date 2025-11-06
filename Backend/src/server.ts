@@ -13,12 +13,9 @@ const app = express();
 // ✅ Enable CORS for your frontend
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
+    origin: 
       "https://assistant-neon.vercel.app",
-    ],
-    credentials: true,
+       credentials: true,
   })
 );
 
