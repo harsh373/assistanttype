@@ -20,7 +20,7 @@ function Customize2() {
     setLoading(true);
 
     try {
-      // 🧩 Validate token existence
+     
       const token = localStorage.getItem("token");
       if (!token) {
         toast.error("Authentication failed. Please sign in again.");
@@ -28,27 +28,27 @@ function Customize2() {
         return;
       }
 
-      // 🧠 Convert /assets/... into absolute URLs
+    
       const fullUrl =
         selectedImage && selectedImage.startsWith("/assets/")
           ? `${window.location.origin}${selectedImage}`
           : selectedImage || "";
 
-      // 🧩 Create form data
+      
       const formData = new FormData();
       formData.append("assistantName", assistantName);
 
       if (backendImage instanceof File) {
-        // Case: user uploaded a real file
+        
         formData.append("assistantImage", backendImage);
       } else {
-        // Case: using predefined image URL
+       
         formData.append("imageUrl", fullUrl);
       }
 
       
 
-      // 🧩 Send request
+      
       const result = await axios.post(
         `${serverUrl}/api/user/update`,
         formData,
@@ -62,7 +62,7 @@ function Customize2() {
 
 
 
-      // 🧩 Update global state and show success
+      
       if (result.data.user) {
         setUserData(result.data.user);
       }
@@ -71,7 +71,7 @@ function Customize2() {
 
       setTimeout(() => navigate("/"), 400);
     } catch (error: any) {
-      console.error("❌ Update Error:", error.response?.data || error.message);
+      console.error(" Update Error:", error.response?.data || error.message);
       toast.error(
         error.response?.data?.message || "Error updating assistant. Try again."
       );
