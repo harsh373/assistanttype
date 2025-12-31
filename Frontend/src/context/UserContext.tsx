@@ -23,7 +23,6 @@ function UserContext({ children }: { children: ReactNode }) {
     }
   }
 
-  // context/UserContext.tsx (inside your provider)
 const getGeminiResponse = async (command: string) => {
   try {
     const token = localStorage.getItem("token");
