@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 app.set("trust proxy", 1);
 
-// ✅ Enable CORS for your frontend
+
 app.use(
   cors({
     origin: 
@@ -23,24 +23,24 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ Define routes
+
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 
-// ✅ Test route
+
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello from the TypeScript backend server!");
 });
 
 const PORT = process.env.PORT || 5000;
 
-// ✅ Wait for DB connection before starting server
+
 connectDb()
   .then(() => {
     app.listen(PORT, () => {
-      console.log(`✅ Server running on port ${PORT}`);
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
-    console.error("❌ MongoDB connection failed:", err);
+    console.error(" MongoDB connection failed:", err);
   });
