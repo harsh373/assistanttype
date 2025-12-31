@@ -20,7 +20,7 @@ function Home() {
   const isRecognizingRef = useRef<boolean>(false)
   const synth = window.speechSynthesis
 
-  // ✅ Redirect if no token found (auth guard)
+  
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -28,7 +28,7 @@ function Home() {
     }
   }, [navigate]);
 
-  // ✅ Fixed Logout Function
+  
   const handleLogOut = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -38,7 +38,7 @@ function Home() {
         withCredentials: true,
       });
 
-      localStorage.removeItem("token"); // remove token on logout
+      localStorage.removeItem("token"); 
       toast.success("Logged Out Successfully");
       setUserData(null);
       navigate("/signin");
