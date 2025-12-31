@@ -5,7 +5,7 @@ import axios from "axios";
 import { userDataContext } from "../context/UserContext";
 import { toast } from "react-toastify";
 
-// ✅ Always include cookies for compatibility
+
 axios.defaults.withCredentials = true;
 
 const Signin = () => {
@@ -27,7 +27,6 @@ const Signin = () => {
     setLoading(true);
 
     try {
-      // ✅ Make signin request
       const result = await axios.post(
         `${serverUrl}/api/auth/signin`,
         { email, password },
@@ -35,15 +34,15 @@ const Signin = () => {
       );
 
 
-      // ✅ Save token (from JSON)
+     
       if (result.data.token) {
         localStorage.setItem("token", result.data.token);
        
       } else {
-        console.warn("⚠️ No token returned from backend");
+        console.warn("No token returned from backend");
       }
 
-      // ✅ Save user data to context
+     
       if (result.data.user) {
         setUserData(result.data.user);
       }
@@ -51,7 +50,7 @@ const Signin = () => {
       toast.success("Login successful!");
       setTimeout(() => navigate("/"), 300);
     } catch (error: any) {
-      console.error("❌ Signin error:", error.response?.data || error.message);
+      console.error(" Signin error:", error.response?.data || error.message);
       const errMsg =
         error.response?.data?.message || "Invalid email or password";
       toast.error(errMsg);
