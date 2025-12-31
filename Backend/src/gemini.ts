@@ -4,60 +4,66 @@ const geminiResponse = async (
   command: string,
   assistantName: string,
   userName: string
-) => {
+): Promise<string> => {
   try {
     const apiUrl = process.env.GEMINI_API_URL;
 
-    const prompt = `You are a virtual assistant named ${assistantName} created by ${userName}. 
-You are not Google. You will now behave like a voice-enabled assistant.
+    if (!apiUrl) {
+      console.error("GEMINI_API_URL is missing");
+      return "Sorry, assistant is not configured properly.";
+    }
 
-Your task is to understand the user's natural language input and respond with a JSON object like this:
+    const prompt = `
+You are a virtual assistant named ${assistantName}, created by ${userName}.
+You are a voice-enabled assistant.
+
+Respond ONLY with a valid JSON object in the following format:
 
 {
-  "type": "general" | "google-search" | "chatgpt-search"| "youtube-search" | "youtube-play" | "get-time" | "get-date" | "get-day" | "get-month"|"calculator-open" | "instagram-open" |"facebook-open" |"weather-show",
+  "type": "general" | "google-search" | "chatgpt-search" | "youtube-search" | "youtube-play" | "get-time" | "get-date" | "get-day" | "get-month" | "calculator-open" | "instagram-open" | "facebook-open" | "weather-show",
   "userInput": "<original user input>",
-  "response": "<a short spoken response to read out loud to the user>"
+  "response": "<short spoken reply>"
 }
 
-Instructions:
-- "type": determine the intent of the user.
-- "userinput": original sentence the user spoke.
-- "response": A short voice-friendly reply, e.g., "Sure, playing it now", "Here's what I found", "Today is Tuesday", etc.
+Rules:
+- Do NOT add any text outside JSON.
+- Keep response short and voice-friendly.
+- If unsure, use type "general".
+- Use ${userName} if asked who created you.
 
-Type meanings:
-- "general": if it's a factual or informational question.
-- "google-search": if user wants to search something on Google.
-- "youtube-search": if user wants to search something on YouTube.
-- "chatgpt-search": if user wants to search something on ChatGPT.
-- "youtube-play": if user wants to directly play a video or song.
-- "calculator-open": if user wants to open a calculator.
-- "instagram-open": if user wants to open Instagram.
-- "facebook-open": if user wants to open Facebook.
-- "weather-show": if user wants to know weather.
-- "get-time": if user asks for current time.
-- "get-date": if user asks for today's date.
-- "get-day": if user asks what day it is.
-- "get-month": if user asks for the current month.
-
-Important:
-- Use ${userName} if someone asks who created you.
-- Only respond with the JSON object, nothing else.
-- Always talk in a girl voice if the username feels like a boy; if it’s a girl username, talk in a boy voice. If unsure, default to girl voice.
-
-Now your userInput - ${command}
+User input:
+${command}
 `;
 
-    const result = await axios.post(apiUrl as string, {
-      contents: [
-        {
-          parts: [{ text: prompt }],
+    const response = await axios.post(
+      apiUrl,
+      {
+        contents: [
+          {
+            parts: [{ text: prompt }],
+          },
+        ],
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
         },
-      ],
-    });
+        timeout: 15000,
+      }
+    );
 
-    return result.data.candidates[0].content.parts[0].text;
-  } catch (error) {
-    console.log(error);
+    const text =
+      response?.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!text || typeof text !== "string") {
+      console.error("Gemini returned invalid structure:", response.data);
+      return "Sorry, I couldn't understand that.";
+    }
+
+    return text;
+  } catch (error: any) {
+    console.error("Gemini API error:", error?.response?.data || error.message);
+    return "Sorry, something went wrong while responding.";
   }
 };
 
