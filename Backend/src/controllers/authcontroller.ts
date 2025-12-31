@@ -3,7 +3,7 @@ import validator from "validator";
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import genToken from "../config/token";
- 
+
 export const signup = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
@@ -12,7 +12,7 @@ export const signup = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid email format" });
     }
 
-    if (password.length < 7) {
+    if (!password || password.length < 7) {
       return res
         .status(400)
         .json({ message: "Password must be at least 7 characters long" });
@@ -41,8 +41,8 @@ export const signup = async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    const userSafe = user.toObject();
-    delete userSafe.password;
+    
+    const { password: _password, ...userSafe } = user.toObject();
 
     return res.status(201).json({
       message: "User created successfully",
@@ -79,8 +79,8 @@ export const login = async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    const userSafe = user.toObject();
-    delete userSafe.password;
+    
+    const { password: _password, ...userSafe } = user.toObject();
 
     return res.status(200).json({
       message: "Login successful",
@@ -93,7 +93,7 @@ export const login = async (req: Request, res: Response) => {
 };
 
 
-export const logout = async (req: Request, res: Response) => {
+export const logout = async (_req: Request, res: Response) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
@@ -108,4 +108,3 @@ export const logout = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
