@@ -5,7 +5,7 @@ import axios from "axios";
 import { userDataContext } from "../context/UserContext";
 import { toast } from "react-toastify";
 
-// ✅ Always include cookies for backend compatibility
+
 axios.defaults.withCredentials = true;
 
 const Signup = () => {
@@ -34,15 +34,15 @@ const Signup = () => {
         { withCredentials: true }
       );
 
-      // ✅ Check if token exists (backend returns it now)
+      
       if (result.data.token) {
         localStorage.setItem("token", result.data.token);
        
       } else {
-        console.warn("⚠️ No token returned in signup response");
+        console.warn("No token returned in signup response");
       }
 
-      // ✅ Store user data in global context
+   
       if (result.data.user) {
         setUserData(result.data.user);
       }
@@ -50,10 +50,10 @@ const Signup = () => {
     
       toast.success("Signup successful!");
 
-      // ✅ Redirect to customize page
+      
       setTimeout(() => navigate("/customize"), 400);
     } catch (error: any) {
-      console.error("❌ Signup error:", error.response?.data || error.message);
+      console.error(" Signup error:", error.response?.data || error.message);
 
       const errMsg =
         error.response?.data?.message ||
